@@ -18,5 +18,5 @@ export const VehicleSchema = new Schema({
   ano: { type: Number, required: true },
 });
 
-const Vehicle = model<IVehicleModel>('vehicle', VehicleSchema);
-export default Vehicle;
+const VehicleMongoModel = model<IVehicleModel>('vehicle', VehicleSchema);
+export default VehicleMongoModel;
