@@ -45,4 +45,8 @@ export class Router {
   public post(route: Route): void {
     this.registerRoute('post', route);
   }
+
+  public put(route: Route): void {
+    this.registerRoute('put', route);
+  }
 }
