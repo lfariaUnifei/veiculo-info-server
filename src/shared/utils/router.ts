@@ -93,4 +93,8 @@ export class Router {
   public put(route: Route): void {
     this.registerRoute('put', route);
   }
+
+  public delete(route: Route): void {
+    this.registerRoute('delete', route);
+  }
 }
