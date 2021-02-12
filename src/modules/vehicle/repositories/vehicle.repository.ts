@@ -21,4 +21,8 @@ export class VehicleRepository {
     const vehicle = await VehicleMongoModel.findById(_id).exec();
     return vehicle ? VehicleMapper.toDomain(vehicle) : undefined;
   }
+
+  async update(_id: string, vehicle: Omit<Partial<VehicleModel>, '_id'>): Promise<void> {
+    await VehicleMongoModel.findByIdAndUpdate(_id, { ...vehicle });
+  }
 }
