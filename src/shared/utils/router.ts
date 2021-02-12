@@ -1,4 +1,4 @@
-import { BaseController } from '../api/base.controller';
+import { BaseController } from '../infra/http/controllers/base.controller';
 
 export interface Route {
   path: string;
@@ -27,6 +27,10 @@ export class Router {
   }
 
   public getHandlerForPath(method: RouteMethod, path: string): BaseController | undefined {
+    // @ts-ignore
+    Object.keys(this.routes).forEach((key: RouteMethod) => {
+      this.routes[key].forEach((item) => console.log(item.path));
+    });
     return this.routes[method].find((route) => route.path === path)?.handler;
   }
 
@@ -36,5 +40,9 @@ export class Router {
 
   public get(route: Route): void {
     this.registerRoute('get', route);
+  }
+
+  public post(route: Route): void {
+    this.registerRoute('post', route);
   }
 }
