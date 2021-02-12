@@ -1,7 +1,12 @@
 import { IVehicleModel } from '../../../shared/infra/database/mongoose/models/vehicle';
 import { VehicleModel } from '../models/vehicle.model';
+import { VehicleDto } from '../dtos/vehicle.dto';
 
 export class VehicleMapper {
+  public static toDto(vehicle: VehicleModel): VehicleDto {
+    return vehicle;
+  }
+
   public static toPersistence(vehicle: VehicleModel): IVehicleModel {
     const copy = { ...vehicle } as IVehicleModel;
     delete copy._id;

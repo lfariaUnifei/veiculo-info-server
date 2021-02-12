@@ -16,4 +16,9 @@ export class VehicleRepository {
   count(): Promise<number> {
     return VehicleMongoModel.count().exec();
   }
+
+  async get(_id: string): Promise<VehicleModel | undefined> {
+    const vehicle = await VehicleMongoModel.findById(_id).exec();
+    return vehicle ? VehicleMapper.toDomain(vehicle) : undefined;
+  }
 }
