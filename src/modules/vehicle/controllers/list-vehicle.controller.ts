@@ -2,6 +2,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { BaseController, RequestInfo } from '../../../shared/infra/http/controllers/base.controller';
 import { VehicleRepository } from '../repositories/vehicle.repository';
 import { VehicleListDto } from '../dtos/vehicle.dto';
+import { VehicleMapper } from '../mappers/vehicle.mapper';
 
 export class ListVehicleController extends BaseController {
   constructor(private vehicleRepository: VehicleRepository) {
@@ -19,7 +20,7 @@ export class ListVehicleController extends BaseController {
     return Promise.resolve(
       super.ok<VehicleListDto>(res, {
         totalCount: totalCount,
-        vehicles: vehicleList,
+        vehicles: vehicleList.map((item) => VehicleMapper.toDto(item)),
       }),
     );
   }
