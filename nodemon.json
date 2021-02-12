@@ -2,5 +2,9 @@
   "watch": ["src"],
   "ext": ".ts",
   "ignore": [],
-  "exec": "ts-node ./src/index.ts"
+  "exec": "ts-node ./src/index.ts",
+  "env": {
+    "NODE_ENV": "development",
+    "DATABASE_CONN_URL": "mongodb://localhost:27018/infovehicle"
+  }
 }

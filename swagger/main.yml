@@ -1,0 +1,367 @@
+openapi: 3.0.0
+
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: Homolog
+    url: https://medcomments-homolog.rancher.medq.com.br/api/v1/
+
+info:
+  description: "Essa APi descreve a forma de comunição para a aplicação de come\
+  ntarios"
+  version: 1.0.0
+  title: MedComments API
+  # put the contact info for your development or API team
+  contact:
+    email: you@your-company.com
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+# tags are used for organizing operations
+tags:
+  - name: Não autenticado
+    description: Chamadas que precisam somente do clientKey
+  - name: developers
+    description: Operations available to regular developers
+
+paths:
+  /comment:
+    get:
+      tags:
+        - Não autenticado
+      summary: Lista os comentários da plataforma
+      operationId: listComments
+      description: Lista todos os comentários para um recurso
+      parameters:
+        - in: header
+          name: x-ClientKey
+          schema:
+            type: string
+            default: 'API_CLIENT_KEY'
+        - in: query
+          name: id
+          schema:
+            type: string
+            description: ResourceID
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - likeCount
+            default: createdAt
+            description: Ordena pelo campo selecionado
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+            description: Ordena ascendente(asc) ou decrescente(desc) pelo campo order
+        - in: query
+          name: limit
+          schema:
+            type: number
+            default: 50
+            description: Numero máximo de documentos a serem listados
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+            description: Página mostrada (page * limit)
+      responses:
+        200:
+          description: Lista de comentários para esse resource
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommentWithReplies'
+        404:
+          description: Resource não encontrado
+        500:
+          description: Erro interno, chame o suporte.
+        401:
+          description: x-ClientKey invalida (header).
+    post:
+      tags:
+        - Autenticado
+        - Comentarios
+      parameters:
+        - in: header
+          name: x-ClientKey
+          schema:
+            type: string
+            default: 'API_CLIENT_KEY'
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            default: 'JWT_GENERATED_FROM_SERVICE_KEY'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentPost'
+      responses:
+        201:
+          description: comentario criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        400:
+          description: invalid input, object invalid
+        409:
+          description: an existing item already exists
+  /comment/{commentId}:
+    patch:
+      tags:
+        - Autenticado
+        - Comentarios
+      parameters:
+        - in: header
+          name: x-ClientKey
+          schema:
+            type: string
+            default: 'API_CLIENT_KEY'
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            default: 'JWT_GENERATED_FROM_SERVICE_KEY'
+        - in: path
+          name: commentId
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentPatch'
+      responses:
+        201:
+          description: comentario criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        400:
+          description: invalid input, object invalid
+        409:
+          description: an existing item already exists
+  /comment/{commentId}/reaction:
+    delete:
+      tags:
+        - Autenticado
+      parameters:
+        - in: header
+          name: x-ClientKey
+          schema:
+            type: string
+            default: 'API_CLIENT_KEY'
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            default: 'JWT_GENERATED_FROM_SERVICE_KEY'
+        - in: path
+          name: commentId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: reação ao comentario removida
+        400:
+          description: invalid input, object invalid
+        409:
+          description: an existing item already exists
+  /comment/{commentId}/reaction/{reactValue}:
+    put:
+      tags:
+        - Autenticado
+      parameters:
+        - in: header
+          name: x-ClientKey
+          schema:
+            type: string
+            enum: [like, dislike]
+            default: 'API_CLIENT_KEY'
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            default: 'JWT_GENERATED_FROM_SERVICE_KEY'
+        - in: path
+          name: commentId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: reactValue
+          schema:
+            type: string
+          required: true
+      responses:
+        201:
+          description: reação ao comentario atualizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        400:
+          description: invalid input, object invalid
+        409:
+          description: an existing item already exists
+  /profile:
+    get:
+      tags:
+        - Autenticado
+      parameters:
+        - in: header
+          name: x-ClientKey
+          schema:
+            type: string
+            default: 'API_CLIENT_KEY'
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            default: 'JWT_GENERATED_FROM_SERVICE_KEY'
+      responses:
+        200:
+          description: Lista de comentários para esse resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commenter'
+        404:
+          description: Perfil não encontrado
+        500:
+          description: Erro interno, chame o suporte.
+        401:
+          description: x-ClientKey invalida (header).
+        403:
+          description: Authorization invalido.
+    put:
+      tags:
+        - Autenticado
+      parameters:
+        - in: header
+          name: x-ClientKey
+          schema:
+            type: string
+            default: 'API_CLIENT_KEY'
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+            default: 'JWT_GENERATED_FROM_SERVICE_KEY'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommenterBase'
+      responses:
+        200:
+          description: Lista de comentários para esse resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commenter'
+        404:
+          description: Perfil não encontrado
+        500:
+          description: Erro interno, chame o suporte.
+        401:
+          description: x-ClientKey invalida (header).
+        403:
+          description: Authorization invalido.
+components:
+  schemas:
+    CommentPost:
+      type: object
+      required:
+        - body
+        - resource
+      properties:
+        body:
+          type: string
+          example: <p> Texto do Comentário!</p>
+        resource:
+          type: string
+          example:  d290f1ee6c544b0190e6d701748f0851
+        replies:
+          type: string
+          example:  d290f1ee63212345151=e6d70175zxc1
+          description: Se esse comentário é uma resposta a outro comentário.
+    CommentPatch:
+      type: object
+      required:
+        - body
+      properties:
+        body:
+          type: string
+          example: <p> Oi </p
+    Comment:
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        author:
+          $ref: '#/components/schemas/Commenter'
+        likeCount:
+          type: number
+          example: 10
+        dislikeCount:
+          type: number
+          example: 5
+        reaction:
+          type: string
+          format: like ou dislike ou undefined
+          example: like
+    CommentWithReplies:
+      allOf:
+        - $ref: '#/components/schemas/Comment'
+        - type: object
+          properties:
+            replies:
+              type: array
+              items:
+                $ref: '#/components/schemas/Comment'
+    CommenterBase:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Aladin
+        photo:
+          type: string
+          format: url
+          example: https://www.rbsdirect.com.br/imagesrc/13876515.jpg?w=700
+          description: Url com a imagem do usuário
+    Commenter:
+      allOf:
+          - $ref: '#/components/schemas/CommenterBase'
+          - type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example:  aladin@email.example
+                description: email do usuário
