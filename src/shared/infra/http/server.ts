@@ -15,14 +15,6 @@ export default function createServer(): Promise<void> {
       const url = URL.parse(req.url || '', true);
       const { pathname, query } = url;
 
-      const requestInfo = {
-        url,
-        method,
-        pathname,
-        query,
-        headers,
-      };
-
       if (!method) {
         res.statusCode = 500;
         return res.end('Error');
@@ -35,7 +27,14 @@ export default function createServer(): Promise<void> {
       if (!handler) {
         handler = new NotFoundController();
       }
-      await handler.execute(req, res, requestInfo);
+      await handler.execute(req, res, {
+        url,
+        method,
+        pathname,
+        query,
+        headers,
+        pathVariables: Router.getInstance().getPathVariables(method as RouteMethod, pathname || ''),
+      });
     });
 
     server.listen(port);

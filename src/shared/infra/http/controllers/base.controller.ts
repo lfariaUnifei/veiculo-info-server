@@ -9,6 +9,7 @@ export interface RequestInfo {
   query: ParsedUrlQuery;
   headers: IncomingHttpHeaders;
   body: any
+  pathVariables: string[];
 }
 
 export abstract class BaseController {
