@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { BaseController } from '../infra/http/controllers/base.controller';
 
 export interface Route {
@@ -26,12 +27,55 @@ export class Router {
     return Router.instance;
   }
 
+  /**
+   * Método gambi para tratar casos simples de match de roteamento..
+   * Uma forma mais complexa não cabe tratar aqui visto também que já existem
+   * soluções de prateleira para isso
+   *
+   * Trata casos de urls do tipo:
+   * resource/:id/resource/:outroId
+   * Sendo que esse ids devem ser mongos ids...
+   * @param routePath
+   * @param path
+   */
+
+  public match(routePath: string, path: string): boolean {
+    const routePathSplit = routePath.split('/');
+    const pathSplit = path.split('/');
+    if (routePathSplit.length !== pathSplit.length) {
+      return false;
+    }
+    for (let i = 0; i < routePathSplit.length; i++) {
+      if (routePathSplit[i] !== pathSplit[i]) {
+        if (!routePathSplit[i].startsWith(':') || !Types.ObjectId.isValid(pathSplit[i])) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private findRouteForPath(method: RouteMethod, path: string): Route | undefined {
+    return this.routes[method].find((route) => this.match(route.path, path));
+  }
+
   public getHandlerForPath(method: RouteMethod, path: string): BaseController | undefined {
-    // @ts-ignore
-    Object.keys(this.routes).forEach((key: RouteMethod) => {
-      this.routes[key].forEach((item) => console.log(item.path));
+    return this.findRouteForPath(method, path)?.handler;
+  }
+
+  public getPathVariables(method: RouteMethod, path: string): string[] {
+    const route = this.findRouteForPath(method, path);
+    if (!route) {
+      return [];
+    }
+    const variables: string[] = [];
+    const splittedPath = path.split('/');
+    route.path.split('/').forEach((item, index) => {
+      if (item.startsWith(':')) {
+        variables.push(splittedPath[index]);
+      }
     });
-    return this.routes[method].find((route) => route.path === path)?.handler;
+    return variables;
   }
 
   private registerRoute(method: RouteMethod, route: Route): void {
