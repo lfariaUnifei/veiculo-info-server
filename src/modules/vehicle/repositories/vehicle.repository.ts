@@ -25,4 +25,10 @@ export class VehicleRepository {
   async update(_id: string, vehicle: Omit<Partial<VehicleModel>, '_id'>): Promise<void> {
     await VehicleMongoModel.findByIdAndUpdate(_id, { ...vehicle });
   }
+
+  async delete(_id: string): Promise<void> {
+    await VehicleMongoModel.deleteOne({
+      _id,
+    });
+  }
 }

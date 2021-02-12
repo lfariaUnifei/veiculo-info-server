@@ -4,6 +4,7 @@ import { CreateVehicleController } from '../controllers/create-vehicle.controlle
 import { VehicleRepository } from '../repositories/vehicle.repository';
 import { GetVehichleController } from '../controllers/get-vehichle.controller';
 import { UpdateVehicleController } from '../controllers/update-vehicle.controller';
+import { DeleteVehicleController } from '../controllers/delete-vehicle.controller';
 
 export default function registerRoutes(): void {
   const router = Router.getInstance();
@@ -27,5 +28,10 @@ export default function registerRoutes(): void {
   router.put({
     path: '/vehicle/:id',
     handler: new UpdateVehicleController(vehicleRepository),
+  });
+
+  router.delete({
+    path: '/vehicle/:id',
+    handler: new DeleteVehicleController(vehicleRepository),
   });
 }
