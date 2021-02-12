@@ -10,3 +10,25 @@ Rodar: docker-compose up
 
 ## Como testar
 usar docker-compose up db e depois npm run test
+
+### Estrutura
+```
+src
+└── shared  // Conteudo compartilahdo por todos o módulos
+    └── Infra // Configuração de database + Configuração de servidor
+        └── http // Controllers genéricos/rotas/server init
+            ├── controllers
+            │   └── screens
+            │       ├── Reports
+            │       └── Users
+            └── Routes
+            │ 
+            └── server.ts
+        └── Database // Configuração do mongo
+            ├── mongoose
+            │   └── config
+            │   └── Models
+
+└── modules // (separado por recurso) contem controllers, dtos, repositories, etc
+```
+
