@@ -1,18 +1,47 @@
-import { IncomingMessage, ServerResponse } from 'http';
+import { IncomingHttpHeaders, IncomingMessage, ServerResponse } from 'http';
+import { UrlWithParsedQuery } from 'url';
+import { ParsedUrlQuery } from 'querystring';
+
+export interface RequestInfo {
+  url: UrlWithParsedQuery;
+  method?: string;
+  pathname: string | null;
+  query: ParsedUrlQuery;
+  headers: IncomingHttpHeaders;
+  body: any
+}
 
 export abstract class BaseController {
-  protected abstract doExecute(req: IncomingMessage, res: ServerResponse): Promise<void | any>;
+  protected abstract doExecute(req: IncomingMessage, res: ServerResponse, info: RequestInfo): Promise<void | any>;
 
-  async execute(req: IncomingMessage, res: ServerResponse): Promise<void> {
-    try {
-      await this.doExecute(req, res);
-    } catch (e) {
-      console.log('Exception caught by BaseController');
-      console.log(e);
-    }
+  async execute(req: IncomingMessage, res: ServerResponse, info: Omit<RequestInfo, 'body'>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let data = '';
+      req.on('data', (chunk) => {
+        data += chunk;
+      });
+      req.on('end', () => {
+        console.log(data);
+        let body = {};
+        try {
+          body = JSON.parse(data);
+        } catch (e) {
+          console.log(e);
+        }
+        this.doExecute(req, res, {
+          ...info,
+          body: body,
+        }).then(() => {
+          resolve();
+        }).catch((e) => {
+          console.log('Exception caught by BaseController');
+          console.log(e);
+        });
+      });
+    });
   }
 
-  public static jsonResponse(res: ServerResponse, code: number, message: any) {
+  static jsonResponse(res: ServerResponse, code: number, message: any) {
     res.writeHead(
       code,
       {
