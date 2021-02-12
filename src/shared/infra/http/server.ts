@@ -10,6 +10,15 @@ const port = 4000;
 export default function createServer(): Promise<void> {
   return connectMongoDB().then(() => {
     const server: http.Server = http.createServer(async (req, res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Request-Method', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+      res.setHeader('Access-Control-Allow-Headers', '*');
+      if (req.method === 'OPTIONS') {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
       const { headers } = req;
       const method = req.method?.toLowerCase();
       const url = URL.parse(req.url || '', true);
